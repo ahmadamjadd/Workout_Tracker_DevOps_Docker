@@ -79,8 +79,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.GMAIL_USER }}
-          password: ${{ secrets.GMAIL_PASSWORD }}
+          username: ${{ vars.GMAIL_USER }}
+          password: ${{ vars.GMAIL_PASSWORD }}
           subject: "FAILED: Workout App Tests Broke"
           to: muhammadahmadamjad90800@gmail.com
           from: GitHub Actions
@@ -135,8 +135,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.GMAIL_USER }}
-          password: ${{ secrets.GMAIL_PASSWORD }}
+          username: ${{ vars.GMAIL_USER }}
+          password: ${{ vars.GMAIL_PASSWORD }}
           subject: "SUCCESS: Testing Deployment Complete"
           to: muhammadahmadamjad90800@gmail.com
           from: GitHub Actions
@@ -151,8 +151,8 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.GMAIL_USER }}
-          password: ${{ secrets.GMAIL_PASSWORD }}
+          username: ${{ vars.GMAIL_USER }}
+          password: ${{ vars.GMAIL_PASSWORD }}
           subject: "FAILED: Workout App Deployment Error"
           to: muhammadahmadamjad90800@gmail.com
           from: GitHub Actions
