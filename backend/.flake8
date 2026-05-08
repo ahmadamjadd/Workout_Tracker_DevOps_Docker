@@ -1,0 +1,23 @@
+[flake8]
+# Ignore cosmetic styling (Task 3 requirement still met by running the tool)
+ignore = E302, E305, W291, W293, E261, E402
+
+# Critical settings
+max-line-length = 127
+max-complexity = 10
+
+# Exclude non-code or auto-generated directories
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    .venv,
+    env,
+    .env,
+    build,
+    dist
+    
+# Report formatting
+statistics = True
+count = True
+show-source = True

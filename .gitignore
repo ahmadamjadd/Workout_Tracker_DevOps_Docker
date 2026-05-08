@@ -1,0 +1,32 @@
+# --- Python / Backend ---
+# Virtual environments
+venv/
+env/
+.venv/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local Database files (Never commit your actual database)
+*.db
+*.sqlite3
+workouts.db
+
+# --- Node.js / Frontend / Vite ---
+# Dependencies
+node_modules/
+
+# Production build output
+dist/
+dist-ssr/
+
+# --- General / OS Files ---
+# Environment variables (secrets)
+.env
+.env.local
+
+# Mac/Windows clutter
+.DS_Store
+Thumbs.db
