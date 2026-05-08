@@ -106,7 +106,7 @@ jobs:
           username: ubuntu
           key: ${{ secrets.TESTING_EC2_SSH_KEY }}
           script: |
-            cd ~/WorkoutApp_Docker
+            cd ~/app2/Workout_Tracker_DevOps_Docker
             docker compose pull
             docker compose up -d
 
