@@ -6,8 +6,8 @@ ignore = E302, E305, W291, W293, E261, E402
 max-line-length = 127
 max-complexity = 10
 
-# Exclude non-code or auto-generated directories
-exclude = 
+# Exclude non-code, auto-generated, and test directories
+exclude =
     .git,
     __pycache__,
     venv,
@@ -15,8 +15,9 @@ exclude =
     env,
     .env,
     build,
-    dist
-    
+    dist,
+    test_*.py
+
 # Report formatting
 statistics = True
 count = True
