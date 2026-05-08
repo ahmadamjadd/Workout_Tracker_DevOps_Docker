@@ -125,6 +125,10 @@ jobs:
             cd ~/app2/Workout_Tracker_DevOps_Docker
             docker compose pull
             docker compose up -d
+            # This deletes old images but leaves your active volumes and data alone
+            docker image prune -f
+            # This cleans system logs to keep the drive lean
+            sudo journalctl --vacuum-size=50M
 
       # ------------------------------------------
       # SUCCESS EMAIL
