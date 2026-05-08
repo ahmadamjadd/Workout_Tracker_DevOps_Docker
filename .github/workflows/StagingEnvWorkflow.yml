@@ -39,8 +39,10 @@ jobs:
           key: ${{ secrets.STAGING_EC2_SSH_KEY }}
           script: |
             cd ~/app2/Workout_Tracker_DevOps_Docker || exit 1
-            docker compose pull
-            docker compose up -d
+            # Ensure docker is running and use sudo so the action user can access the docker socket
+            sudo systemctl start docker || true
+            sudo docker compose pull
+            sudo docker compose up -d
 
       - name: Publish deployment link to workflow summary
         if: success()
