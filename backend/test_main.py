@@ -51,3 +51,4 @@ def test_create_workout_missing_data():
     }
     response = client.post("/workouts/", json=bad_workout)
     assert response.status_code == 422
+    

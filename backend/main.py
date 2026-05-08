@@ -10,7 +10,8 @@ import os
 # We use environment variables so Docker can inject the correct values
 DB_USER = os.getenv("POSTGRES_USER", "postgres")
 DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password")
-DB_HOST = os.getenv("POSTGRES_HOST", "db") # 'db' matches the service name in docker-compose
+# Default to localhost for local Pytest, overridden by docker-compose
+DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
 DB_NAME = os.getenv("POSTGRES_DB", "workout_db")
 
 SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
@@ -19,6 +20,7 @@ SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_N
 engine = create_engine(SQLALCHEMY_DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
 
 # --- SQLAlchemy Model (Remains same) ---
 class Workout(Base):
@@ -30,8 +32,10 @@ class Workout(Base):
     reps = Column(Integer)
     weight = Column(Float)
 
+
 # Create the database table (Wait for DB to be ready)
 Base.metadata.create_all(bind=engine)
+
 
 # --- Pydantic Schemas (Remains same) ---
 class WorkoutCreate(BaseModel):
@@ -40,12 +44,14 @@ class WorkoutCreate(BaseModel):
     reps: int
     weight: float
 
+
 class WorkoutResponse(WorkoutCreate):
     id: int
     date: datetime.datetime
 
     class Config:
         from_attributes = True
+
 
 # --- FastAPI App Initialization ---
 app = FastAPI(title="Workout Tracker API")
@@ -58,12 +64,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 def get_db():
     db = SessionLocal()
     try:
         yield db
     finally:
         db.close()
+
 
 # --- API Endpoints ---
 @app.post("/workouts/", response_model=WorkoutResponse)
@@ -73,6 +81,7 @@ def create_workout(workout: WorkoutCreate, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(db_workout)
     return db_workout
+
 
 @app.get("/workouts/", response_model=list[WorkoutResponse])
 def read_workouts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
