@@ -65,7 +65,7 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.GMAIL_USERNAME }}
+          username: ${{ secrets.GMAIL_USER }}
           password: ${{ secrets.GMAIL_PASSWORD }}
           subject: "FAILED: Workout App Tests Broke"
           to: muhammadahmadamjad90800@gmail.com
@@ -120,7 +120,7 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.GMAIL_USERNAME }}
+          username: ${{ secrets.GMAIL_USER }}
           password: ${{ secrets.GMAIL_PASSWORD }}
           subject: "SUCCESS: Testing Deployment Complete"
           to: muhammadahmadamjad90800@gmail.com
@@ -135,7 +135,7 @@ jobs:
         with:
           server_address: smtp.gmail.com
           server_port: 465
-          username: ${{ secrets.GMAIL_USERNAME }}
+          username: ${{ secrets.GMAIL_USER }}
           password: ${{ secrets.GMAIL_PASSWORD }}
           subject: "FAILED: Workout App Deployment Error"
           to: muhammadahmadamjad90800@gmail.com
