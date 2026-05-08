@@ -1,0 +1,58 @@
+name: Build & Deploy Staging
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Images (Staging)
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/workout-backend:staging ./backend
+          docker build --build-arg VITE_API_URL=http://${{ vars.STAGING_INSTANCE_IP }}:8001/workouts/ -t $ECR_REGISTRY/workout-frontend:staging ./frontend
+          docker push $ECR_REGISTRY/workout-backend:staging
+          docker push $ECR_REGISTRY/workout-frontend:staging
+
+      - name: Deploy to Staging EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.STAGING_INSTANCE_IP }}
+          username: ubuntu
+          key: ${{ secrets.STAGING_EC2_SSH_KEY }}
+          script: |
+            cd ~/app2/Workout_Tracker_DevOps_Docker || exit 1
+            docker compose pull
+            docker compose up -d
+
+      - name: Publish deployment link to workflow summary
+        if: success()
+        run: |
+          # Wait a short time for the app to start (non-fatal)
+          for i in {1..12}; do
+            if curl -sSf "http://${{ vars.STAGING_INSTANCE_IP }}" >/dev/null; then
+              break
+            fi
+            sleep 5
+          done
+
+          echo "## Staging Deployment" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Application available at: http://${{ vars.STAGING_INSTANCE_IP }}" >> $GITHUB_STEP_SUMMARY
