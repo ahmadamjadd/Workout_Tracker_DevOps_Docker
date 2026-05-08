@@ -14,10 +14,16 @@ DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password")
 DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
 DB_NAME = os.getenv("POSTGRES_DB", "workout_db")
 
-SQLALCHEMY_DATABASE_URL = f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+SQLALCHEMY_DATABASE_URL = os.getenv(
+    "DATABASE_URL",
+    f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}",
+)
 
-# PostgreSQL doesn't need "check_same_thread" like SQLite does
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+engine_kwargs = {}
+if SQLALCHEMY_DATABASE_URL.startswith("sqlite"):
+    engine_kwargs["connect_args"] = {"check_same_thread": False}
+
+engine = create_engine(SQLALCHEMY_DATABASE_URL, **engine_kwargs)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
@@ -31,10 +37,6 @@ class Workout(Base):
     sets = Column(Integer)
     reps = Column(Integer)
     weight = Column(Float)
-
-
-# Create the database table (Wait for DB to be ready)
-Base.metadata.create_all(bind=engine)
 
 
 # --- Pydantic Schemas (Remains same) ---
@@ -58,7 +60,7 @@ app = FastAPI(title="Workout Tracker API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], 
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -73,6 +75,11 @@ def get_db():
         db.close()
 
 
+@app.on_event("startup")
+def create_tables():
+    Base.metadata.create_all(bind=engine)
+
+
 # --- API Endpoints ---
 @app.post("/workouts/", response_model=WorkoutResponse)
 def create_workout(workout: WorkoutCreate, db: Session = Depends(get_db)):
@@ -84,6 +91,10 @@ def create_workout(workout: WorkoutCreate, db: Session = Depends(get_db)):
 
 
 @app.get("/workouts/", response_model=list[WorkoutResponse])
-def read_workouts(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def read_workouts(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+):
     workouts = db.query(Workout).offset(skip).limit(limit).all()
     return workouts
