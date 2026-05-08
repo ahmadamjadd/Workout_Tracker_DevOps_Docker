@@ -12,6 +12,20 @@ jobs:
   # ==========================================
   test-backend:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: workout_db
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       
@@ -69,6 +83,7 @@ jobs:
           password: ${{ secrets.GMAIL_PASSWORD }}
           subject: "FAILED: Workout App Tests Broke"
           to: muhammadahmadamjad90800@gmail.com
+          from: GitHub Actions
           body: "The workflow stopped because the unit tests or linting failed. The images were NOT built and the EC2 instance was NOT updated. Check logs: https://github.com/${{ github.repository }}/actions"
 
   # ==========================================
@@ -124,6 +139,7 @@ jobs:
           password: ${{ secrets.GMAIL_PASSWORD }}
           subject: "SUCCESS: Testing Deployment Complete"
           to: muhammadahmadamjad90800@gmail.com
+          from: GitHub Actions
           body: "The PR passed all tests and has been successfully deployed to http://${{ vars.TESTING_INSTANCE_IP }}:8080"
 
       # ------------------------------------------
@@ -139,4 +155,5 @@ jobs:
           password: ${{ secrets.GMAIL_PASSWORD }}
           subject: "FAILED: Workout App Deployment Error"
           to: muhammadahmadamjad90800@gmail.com
+          from: GitHub Actions
           body: "The tests passed, but the workflow failed during the AWS build or EC2 deployment phase. Check logs: https://github.com/${{ github.repository }}/actions"
