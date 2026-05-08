@@ -1,0 +1,141 @@
+name: QA Testing Deployment
+
+on:
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # ==========================================
+  # JOB 1: BACKEND TESTING
+  # ==========================================
+  test-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Backend Dependencies
+        run: |
+          pip install -r backend/requirements.txt
+          pip install flake8 pytest httpx
+
+      - name: Lint Backend
+        run: flake8 ./backend
+
+      - name: Run Backend Unit Tests
+        run: pytest backend/test_main.py
+
+  # ==========================================
+  # JOB 2: FRONTEND TESTING
+  # ==========================================
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          
+      - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        run: npm install 
+
+      - name: Lint Frontend
+        working-directory: ./frontend
+        run: npm run lint
+
+      - name: Run Frontend Unit Tests
+        working-directory: ./frontend
+        run: npm run test
+
+  # ==========================================
+  # JOB 3: FAILURE NOTIFICATION (Triggers if tests break)
+  # ==========================================
+  notify-failure:
+    needs: [test-backend, test-frontend]
+    if: ${{ always() && contains(needs.*.result, 'failure') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Developer of Test Failure
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: "FAILED: Workout App Tests Broke"
+          to: muhammadahmadamjad90800@gmail.com
+          body: "The workflow stopped because the unit tests or linting failed. The images were NOT built and the EC2 instance was NOT updated. Check logs: https://github.com/${{ github.repository }}/actions"
+
+  # ==========================================
+  # JOB 4: BUILD, PUSH, AND DEPLOY
+  # ==========================================
+  build-and-deploy:
+    needs: [test-backend, test-frontend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_KEY_PASSWORD }}
+          aws-region: ap-south-1
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          docker build -t $ECR_REGISTRY/workout-backend:testing ./backend
+          docker build --build-arg VITE_API_URL=http://${{ vars.TESTING_INSTANCE_IP }}:8001/workouts/ -t $ECR_REGISTRY/workout-frontend:testing ./frontend
+          docker push $ECR_REGISTRY/workout-backend:testing
+          docker push $ECR_REGISTRY/workout-frontend:testing
+
+      - name: SSH Deploy to EC2
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ vars.TESTING_INSTANCE_IP }}
+          username: ubuntu
+          key: ${{ secrets.TESTING_EC2_SSH_KEY }}
+          script: |
+            cd ~/WorkoutApp_Docker
+            docker compose pull
+            docker compose up -d
+
+      # ------------------------------------------
+      # SUCCESS EMAIL
+      # ------------------------------------------
+      - name: Notify Instructor of Success
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: "SUCCESS: Testing Deployment Complete"
+          to: muhammadahmadamjad90800@gmail.com
+          body: "The PR passed all tests and has been successfully deployed to http://${{ vars.TESTING_INSTANCE_IP }}:8080"
+
+      # ------------------------------------------
+      # DEPLOYMENT FAILURE EMAIL
+      # ------------------------------------------
+      - name: Notify Developer of Deployment Failure
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_USERNAME }}
+          password: ${{ secrets.GMAIL_PASSWORD }}
+          subject: "FAILED: Workout App Deployment Error"
+          to: muhammadahmadamjad90800@gmail.com
+          body: "The tests passed, but the workflow failed during the AWS build or EC2 deployment phase. Check logs: https://github.com/${{ github.repository }}/actions"
