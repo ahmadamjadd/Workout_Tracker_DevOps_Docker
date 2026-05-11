@@ -49,11 +49,12 @@ function App() {
 
   return (
     <div className="app-wrapper">
-      <h1 className="gradient-title">🏋️ Minimalist Workout Tracker</h1>
+      <h1 className="gradient-title animate-title">🏋️ Minimalist Workout Tracker</h1>
 
-      <div className="card">
-        <h2>Log a New Workout</h2>
-        <form onSubmit={handleSubmit} className="workout-form">
+      <main className="main-grid">
+        <div className="card animate-form">
+          <h2>Log a New Workout</h2>
+          <form onSubmit={handleSubmit} className="workout-form">
           <input 
             type="text" name="exercise_name" placeholder="Exercise (e.g., Bench Press)" 
             value={formData.exercise_name} onChange={handleInputChange} required 
@@ -72,13 +73,16 @@ function App() {
           />
           <button type="submit">Log Workout</button>
         </form>
-      </div>
+        </div>
 
-      <div className="card">
-        <h2>Workout History</h2>
-        {workouts.length === 0 ? (
-          <p>No workouts logged yet. Get lifting!</p>
-        ) : (
+        <div className="card animate-history">
+          <h2>Workout History</h2>
+          {workouts.length === 0 ? (
+            <div className="empty-state">
+              <span className="empty-icon">🎯</span>
+              <p className="empty-text">No workouts logged yet. Time to hit the iron.</p>
+            </div>
+          ) : (
           <table>
             <thead>
               <tr>
@@ -102,7 +106,8 @@ function App() {
             </tbody>
           </table>
         )}
-      </div>
+        </div>
+      </main>
     </div>
   );
 }

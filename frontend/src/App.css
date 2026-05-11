@@ -10,13 +10,40 @@
   --input-bg: rgba(0, 0, 0, 0.2);
 }
 
+/* --- Entry Animations --- */
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-title {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-form {
+  opacity: 0;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.1s;
+}
+
+.animate-history {
+  opacity: 0;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  animation-delay: 0.3s;
+}
+
 /* --- Cards --- */
 .card {
   background: rgba(255, 255, 255, 0.03);
   padding: 2.5rem;
   border-radius: 16px;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-  margin-bottom: 2rem;
   border: 1px solid rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -38,15 +65,61 @@
   letter-spacing: 0.01em;
 }
 
+/* --- Empty State --- */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.02);
+  text-align: center;
+  gap: 1rem;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  filter: drop-shadow(0 0 15px rgba(192, 132, 252, 0.5));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}
+
+.empty-text {
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
 /* --- Form Styles --- */
 .workout-form {
   display: flex;
+  flex-direction: column;
   gap: 16px;
-  flex-wrap: wrap;
+}
+
+.workout-form > * {
+  width: 100%;
+}
+
+@media (min-width: 768px) {
+  .workout-form {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .workout-form input {
+    flex: 1 1 150px;
+  }
 }
 
 input {
-  flex: 1 1 150px;
   background-color: rgba(0, 0, 0, 0.2);
   border: none;
   border-bottom: 2px solid rgba(255, 255, 255, 0.1);
@@ -55,7 +128,8 @@ input {
   border-radius: 4px 4px 0 0;
   font-size: 1rem;
   font-family: inherit;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-sizing: border-box;
 }
 
 input::placeholder {
@@ -78,7 +152,7 @@ button {
   font-weight: 700;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   font-family: inherit;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
@@ -119,15 +193,20 @@ th {
 td {
   color: #ffffff;
   font-size: 1rem;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 tr {
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+tr:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 tr:hover td {
-  background-color: rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.08);
 }
 
 tr:last-child td {
