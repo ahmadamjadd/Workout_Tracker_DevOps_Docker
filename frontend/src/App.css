@@ -102,25 +102,36 @@ table {
 }
 
 th, td {
-  padding: 16px;
+  padding: 16px 20px;
   text-align: left;
-  border-bottom: 1px solid var(--glass-border);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 th {
-  color: var(--text-muted);
+  color: #94a3b8;
   font-weight: 600;
   text-transform: uppercase;
   font-size: 0.85rem;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-tr {
+td {
+  color: #ffffff;
+  font-size: 1rem;
   transition: background-color 0.2s ease;
 }
 
+tr {
+  transition: all 0.2s ease;
+}
+
 tr:hover td {
-  background-color: var(--glass-hover);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+tr:last-child td {
+  border-bottom: none;
 }
 
 td:first-child {
