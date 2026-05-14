@@ -189,33 +189,6 @@ WorkoutApp_Docker/
 		└── main.jsx
 ```
 
-## Logical Flow Summary
-
-```mermaid
-flowchart TD
-	A[Developer creates feature branch] --> B[Pull request to main]
-	B --> C[Testing workflow starts]
-	C --> D[Backend lint and tests]
-	C --> E[Frontend lint and tests]
-	D --> F{Checks pass?}
-	E --> F
-	F -- No --> G[Failure email sent]
-	F -- Yes --> H[Build Docker images]
-	H --> I[Push images to ECR]
-	I --> J[SSH into testing EC2]
-	J --> K[docker compose pull]
-	K --> L[docker compose up -d]
-	L --> M[Success email sent]
-	M --> N[QA validates testing URL]
-	N --> O[Merge to main]
-	O --> P[Staging workflow starts]
-	P --> Q[Build and push staging images to ECR]
-	Q --> R[SSH into staging EC2]
-	R --> S[docker compose pull]
-	S --> T[docker compose up -d]
-	T --> U[Staging URL published]
-```
-
 ## Notes
 
 - Backend startup creates database tables automatically.
