@@ -45,7 +45,6 @@ jobs:
       - name: Publish deployment link to workflow summary
         if: success()
         run: |
-          # Wait a short time for the app to start (non-fatal)
           for i in {1..12}; do
             if curl -sSf "http://${{ vars.STAGING_INSTANCE_IP }}" >/dev/null; then
               break

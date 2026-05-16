@@ -12,7 +12,6 @@ function App() {
     weight: ''
   });
 
-  // Dynamically uses your EC2 IP from GitHub Actions, or localhost if you are on your laptop
   const API_URL = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000/workouts/';
 
   const fetchWorkouts = async () => {

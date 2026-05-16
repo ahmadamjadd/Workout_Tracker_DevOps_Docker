@@ -6,11 +6,8 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 import datetime
 import os
 
-# --- Database Setup (Updated for PostgreSQL) ---
-# We use environment variables so Docker can inject the correct values
 DB_USER = os.getenv("POSTGRES_USER", "postgres")
 DB_PASSWORD = os.getenv("POSTGRES_PASSWORD", "password")
-# Default to localhost for local Pytest, overridden by docker-compose
 DB_HOST = os.getenv("POSTGRES_HOST", "localhost")
 DB_NAME = os.getenv("POSTGRES_DB", "workout_db")
 
@@ -28,7 +25,6 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
-# --- SQLAlchemy Model (Remains same) ---
 class Workout(Base):
     __tablename__ = "workouts"
     id = Column(Integer, primary_key=True, index=True)
@@ -39,7 +35,6 @@ class Workout(Base):
     weight = Column(Float)
 
 
-# --- Pydantic Schemas (Remains same) ---
 class WorkoutCreate(BaseModel):
     exercise_name: str
     sets: int
@@ -55,7 +50,6 @@ class WorkoutResponse(WorkoutCreate):
         from_attributes = True
 
 
-# --- FastAPI App Initialization ---
 app = FastAPI(title="Workout Tracker API")
 
 app.add_middleware(
@@ -80,7 +74,6 @@ def create_tables():
     Base.metadata.create_all(bind=engine)
 
 
-# --- API Endpoints ---
 @app.post("/workouts/", response_model=WorkoutResponse)
 def create_workout(workout: WorkoutCreate, db: Session = Depends(get_db)):
     db_workout = Workout(**workout.model_dump())

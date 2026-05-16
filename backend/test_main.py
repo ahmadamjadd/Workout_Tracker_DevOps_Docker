@@ -3,13 +3,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 import os
 
-# Make sure the app module builds its default engine against SQLite.
 os.environ["DATABASE_URL"] = "sqlite:///./test.db"
 
 from main import Base, app, get_db  # noqa: E402
 
-# --- TEST DATABASE SETUP ---
-# We use a separate SQLite database for testing.
 SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
@@ -21,9 +18,6 @@ TestingSessionLocal = sessionmaker(
     bind=engine,
 )
 
-# This overrides the get_db dependency in main.py during tests
-
-
 def override_get_db():
     try:
         db = TestingSessionLocal()
@@ -34,12 +28,9 @@ def override_get_db():
 
 app.dependency_overrides[get_db] = override_get_db
 
-# Create the tables in the test database
 Base.metadata.create_all(bind=engine)
 
 client = TestClient(app)
-
-# --- YOUR TEST CASES (Logic remains same) ---
 
 
 def test_read_workouts():

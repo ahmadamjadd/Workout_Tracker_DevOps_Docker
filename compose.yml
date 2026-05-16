@@ -1,5 +1,4 @@
 services:
-  # 1. Database (PostgreSQL) - STAYS EXACTLY THE SAME
   db:
     image: postgres:17
     environment:
@@ -9,9 +8,7 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
-  # 2. Backend (FastAPI) - CHANGES HERE
   backend:
-    # Notice we removed "build: ./backend" and added the ECR link
     image: 053108159236.dkr.ecr.ap-south-1.amazonaws.com/workout-backend:testing
     restart: on-failure
     environment:
@@ -24,9 +21,7 @@ services:
     depends_on:
       - db
 
-  # 3. Frontend (React on Apache) - CHANGES HERE
   frontend:
-    # We removed "build:" and the "args:" completely!
     image: 053108159236.dkr.ecr.ap-south-1.amazonaws.com/workout-frontend:testing
     ports:
       - "8080:80"
